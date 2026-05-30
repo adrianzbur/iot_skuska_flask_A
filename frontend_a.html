@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <title>IoT Prevodník</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 2em auto; padding: 1em; }
+        form { display: flex; flex-direction: column; gap: 0.8em; }
+        label { display: flex; flex-direction: column; }
+        input, select, button { padding: 0.5em; font-size: 1em; }
+        button { background: #2563eb; color: white; border: 0; cursor: pointer; }
+        #vysledok { margin-top: 1em; padding: 1em; background: #f3f4f6; border-radius: 6px; min-height: 1em; }
+        nav { margin-bottom: 1em; }
+        nav a { margin-right: 1em; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Prevod</a>
+        <a href="/historia">História</a>
+    </nav>
+    <h1>IoT Prevodník jednotiek</h1>
+    <form id="formular">
+        <label>Hodnota:
+            <input type="number" id="hodnota" step="any" required>
+        </label>
+        <label>Typ prevodu:
+            <select id="typ">
+                <option value="c_to_f">°C → °F</option>
+                <option value="hpa_to_mmhg">hPa → mmHg</option>
+                <option value="ms_to_kmh">m/s → km/h</option>
+            </select>
+        </label>
+        <button type="submit">Previesť</button>
+    </form>
+    <div id="vysledok"></div>
+
+    <script>
+        const form = document.getElementById("formular");
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const hodnota = document.getElementById("hodnota").value;
+            const typ = document.getElementById("typ").value;
+            const r = await fetch(`/api/prevod?hodnota=${hodnota}&typ=${typ}`);
+            const data = await r.json();
+            const div = document.getElementById("vysledok");
+            if (data.chyba) {
+                div.innerHTML = `<strong style="color:red">Chyba:</strong> ${data.chyba}`;
+            } else {
+                div.innerHTML = `<strong>Výsledok:</strong> ${data.popis}`;
+            }
+        });
+    </script>
+</body>
+</html>
