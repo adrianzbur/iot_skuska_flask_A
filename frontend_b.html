@@ -38,8 +38,9 @@
             telo.innerHTML = data.map(p => `
                 <tr>
                     <td>${p.hodnota}</td>
-                    <td>${p.popis}</td>
+                    <!-- OPRAVA #5: stĺpce p.popis a p.typ boli prehodené — v hlavičke je najprv "Typ prevodu" potom "Výsledok", teda td musia zodpovedať tomuto poradiu -->
                     <td>${p.typ}</td>
+                    <td>${p.popis}</td>
                     <td>${p.cas}</td>
                 </tr>
             `).join("");

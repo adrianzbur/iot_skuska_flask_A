@@ -46,24 +46,30 @@ def prevod():
     typ = request.args.get("typ", "c_to_f")
 
     if hodnota is None:
-        return jsonify({"chyba": "Zadajte hodnotu!"})
+        # OPRAVA #1: bez HTTP status kódu Flask vrátil 200, čo je nesprávne — chyba musí vrátiť 400
+        return jsonify({"chyba": "Zadajte hodnotu!"}), 400
 
     if typ == "c_to_f":
         vysledok = (hodnota * 9 / 5) + 32
         popis = f"{hodnota} °C = {vysledok:.2f} °F"
     elif typ == "hpa_to_mmhg":
-        vysledok = hodnota / 0.75006
+        # OPRAVA #2: vzorec bol obrátený — 1 hPa = 0.75006 mmHg, teda treba násobiť, nie deliť
+        vysledok = hodnota * 0.75006
         popis = f"{hodnota} hPa = {vysledok:.2f} mmHg"
     elif typ == "ms_to_kmh":
         vysledok = hodnota * 3.6
         popis = f"{hodnota} m/s = {vysledok:.2f} km/h"
+    else:
+        # OPRAVA #3: neznámy typ spôsobil NameError (vysledok/popis nedefinované) a HTTP 500 — treba vrátiť 400
+        return jsonify({"chyba": f"Neznámy typ prevodu: {typ}"}), 400
 
     zaznam = {
         "hodnota": hodnota,
         "typ": typ,
         "vysledok": round(vysledok, 2),
         "popis": popis,
-        "cas": datetime.datetime.now()
+        # OPRAVA #4: datetime objekt nie je JSON serializovateľný — treba ho previesť na string cez isoformat()
+        "cas": datetime.datetime.now().isoformat()
     }
     uloz_prevod(zaznam)
 
